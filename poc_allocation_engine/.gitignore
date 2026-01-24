@@ -1,0 +1,60 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+
+# ======================
+# Virtual environments
+# ======================
+.venv/
+venv/
+env/
+
+# ======================
+# OS / IDE
+# ======================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ======================
+# Runtime / generated
+# ======================
+*.log
+*.tmp
+
+# ======================
+# Results & exports
+# ======================
+examples/result.csv
+examples/*.out
+examples/*.json
+
+# ======================
+# Local payloads / tests
+# ======================
+payload.json
+
+# ======================
+# Docker
+# ======================
+*.tar
+
+# ======================
+# Python build artifacts
+# ======================
+build/
+dist/
+.cache/
+
+# ======================
+# Jupyter (if ever)
+# ======================
+.ipynb_checkpoints/
