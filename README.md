@@ -1,93 +1,148 @@
-# POC_Allocation_Engine
 
+# POC Allocation Engine
 
+Solve a student-to-presentation allocation problem with room/time constraints.
 
-## Getting started
+This project exposes a small FastAPI service with a single endpoint (`POST /solve`) that:
+- reads two CSV files (students choices + rooms) that u must generate via exampeles/geenrate_dummy_data.py
+- builds and solves an optimization model (OR-Tools CP-SAT)
+- returns a JSON solution
+- writes a flat CSV export to `examples/result.csv`
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Requirements
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Windows (commands below assume PowerShell)
+- Python 3.11+
 
-## Add your files
+## Install
 
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Create a virtual environment (recommended):
+
+```powershell
+python -m venv .venv
+```
+
+Install dependencies:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+## Run the API
+
+Start the server with auto-reload:
+
+```powershell
+.venv\Scripts\python.exe -m uvicorn app.api.main:app --reload
+```
+
+The API listens on:
 
 ```
-cd existing_repo
-git remote add origin https://devops.telecomste.fr/poc2/poc_allocation_engine.git
-git branch -M main
-git push -uf origin main
+http://127.0.0.1:8000
 ```
 
-## Integrate with your tools
+## Call the solver
 
-* [Set up project integrations](https://devops.telecomste.fr/poc2/poc_allocation_engine/-/settings/integrations)
+Send the input CSV files as multipart form-data:
 
-## Collaborate with your team
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/solve?time_limit=20" \
+	-F "students_csv=@examples/students_choices.csv" \
+	-F "rooms_csv=@examples/rooms.csv"
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Notes:
+- Run the command from the repo root (`C:\Users\...\poc_allocation_engine`) so relative paths like `examples/...` work.
+- The HTTP response is JSON. A CSV export is written to disk (see next section).
 
-## Test and Deploy
+## Outputs
 
-Use the built-in continuous integration in GitLab.
+### JSON response
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+The endpoint returns:
+- `status`: `OPTIMAL`/`FEASIBLE`
+- `objective`: objective value (float)
+- `students`: per-student assignments
+- `sessions`: per (presentation, slot) session with list of students
+- `exported_csv`: filesystem path of the CSV that was written
 
-***
+### CSV export
 
-# Editing this README
+On every successful solve, the server writes:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```
+examples/result.csv
+```
 
-## Suggestions for a good README
+CSV schema:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```
+student_index,slot,presentation_id,room_id
+```
 
-## Name
-Choose a self-explaining name for your project.
+One row per assigned (student, slot).
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Input CSV formats
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Students choices CSV
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Headers (French):
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```
+ID élève,Vague,Voeu 1,Voeu 2,Voeu 3,Voeu 4,Voeu 5
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- `Vague` must be `1` or `2`
+- each student must have exactly 5 choices
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Rooms CSV
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Headers:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```
+room_id,capacity
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Generate dummy data
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+This overwrites `examples/students_choices.csv` and `examples/rooms.csv`:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```powershell
+.venv\Scripts\python.exe examples\generate_dummy_data.py
+```
 
-## License
-For open source projects, say how it is licensed.
+## Run tests
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+## Solver backend
+
+The current backend is **OR-Tools CP-SAT**.
+
+Implementation locations:
+- model builder: `app/domain/model.py`
+- constraints: `app/domain/constraints.py`
+- solver wrapper: `app/infrastructure/solver.py`
+
+## Troubleshooting
+
+### `uvicorn` is not recognized
+
+Use the venv Python module form:
+
+```powershell
+.venv\Scripts\python.exe -m uvicorn app.api.main:app --reload
+```
+
+### `curl: (26) Failed to open/read local data`
+
+You are not in the repo root. Run:
+
+```powershell
+Set-Location C:\Users\walid\dev\poc_allocation_engine
+```
+
+Then retry the `curl.exe` command.
