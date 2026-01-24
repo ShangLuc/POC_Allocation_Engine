@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-numpy
-ortools
-pydantic
-pytest
-python-multipart
