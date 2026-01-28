@@ -1,0 +1,79 @@
+#### Guide d’installation 
+
+Installer Python
+
+Aller sur :
+https://www.python.org/downloads/windows/
+
+Télécharger la dernière version de Python 3.11 ou 3.12 (64-bit).
+Lancer l’installateur.
+Très important : cocher la case
+  Add Python to PATH
+  Puis cliquer sur Install Now.
+
+Vérifier l’installation
+Ouvrir Invite de commandes (cmd) ou PowerShell :
+python --version
+
+
+Tu dois voir quelque chose comme :
+Python 3.11.x
+
+
+Puis :
+
+pip --version
+
+Ouvrir le dossier du projet algo-affectation
+
+Créer un environnement virtuel (recommandé)
+
+Dans le dossier du projet :
+
+python -m venv venv
+
+
+Activer l’environnement :
+
+venv\Scripts\activate
+
+
+Tu dois voir (venv) au début de la ligne de commande.
+
+Installer les bibliothèques nécessaires
+
+Toujours avec l’environnement activé :
+
+pip install pandas ortools openpyxl
+
+
+
+
+Vérifier les fichiers d’entrée
+Le dossier doit contenir :
+
+ * main.py
+ * students.csv
+ * Capacités salles TSE.xlsx
+
+Lancer l’algorithme
+
+Dans le dossier :
+
+python main.py --students_csv students.csv --capacities_xlsx "Capacités salles TSE.xlsx"
+
+Les fichiers suivants seront générés :
+
+planning_students.csv
+planning_salles.csv
+
+Lancer les tests (optionnel mais recommandé)
+python test.py
+
+
+Cela vérifie que :
+
+chaque élève a 4 activités
+les capacités sont respectées
+les contraintes sont respectées
+
