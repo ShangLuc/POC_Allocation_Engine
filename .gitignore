@@ -60,4 +60,5 @@ dist/
 .ipynb_checkpoints/
 .env
 .env.*
+!.env.example
 config.local.*
