@@ -14,6 +14,11 @@ This project exposes a small FastAPI service with a single endpoint (`POST /solv
 - Windows (commands below assume PowerShell)
 - Python 3.11+
 
+## Optional local config
+
+If you want a placeholder for local settings, copy [.env.example](../.env.example) to `.env`.
+The current app does not require secrets; this file is mainly a template for local launch values.
+
 ## Install
 
 Create a virtual environment (recommended):

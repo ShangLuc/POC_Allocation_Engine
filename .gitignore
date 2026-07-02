@@ -58,3 +58,6 @@ dist/
 # Jupyter (if ever)
 # ======================
 .ipynb_checkpoints/
+.env
+.env.*
+config.local.*
